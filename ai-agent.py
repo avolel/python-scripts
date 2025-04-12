@@ -10,7 +10,7 @@ WEATHERAPI_KEY = os.getenv('WEATHERAPI_KEY')
 
 system_prompt = {
     "role": "system", 
-    "content": "You are a helpful assistant. You can get the weather for any city by calling a function called 'fetch_weather' if needed."
+    "content": "You are a helpful assistant. You can get the weather for any city by calling a function called 'fetch_weather'."
 }
 user_prompt = {
   'role': 'user',
