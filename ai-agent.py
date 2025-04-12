@@ -35,7 +35,7 @@ def LLamaChat(messages: List[Dict[str,str]]) -> ChatResponse:
     return chat(model='llama3.1:8b', messages=messages,
         stream=True)
 
-user_prompt['content'] = "What is the weather in New York?"
+user_prompt['content'] = "What is the weather in Paris?"
 messages = [system_prompt, user_prompt]
 
 response: ChatResponse = LLamaChatTools(messages)
