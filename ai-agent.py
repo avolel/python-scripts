@@ -4,6 +4,7 @@ from typing import List, Dict
 import os
 from dotenv import load_dotenv
 import requests
+import sys
 
 load_dotenv()
 WEATHERAPI_KEY = os.getenv('WEATHERAPI_KEY')
@@ -35,19 +36,31 @@ def LLamaChat(messages: List[Dict[str,str]]) -> ChatResponse:
     return chat(model='llama3.1:8b', messages=messages,
         stream=True)
 
-user_prompt['content'] = "What is the weather in Paris?"
-messages = [system_prompt, user_prompt]
+def Streaming(response: ChatResponse):
+    for chunk in response:
+        print(chunk["message"]["content"], end='', flush=True)
 
-response: ChatResponse = LLamaChatTools(messages)
+def Main():
+    while True:
+      prompt = input("Enter Prompt:")
 
-if response['message']['tool_calls']:
-    for tool in response['message']['tool_calls']:
-        func_name = tool['function']['name']
-        args = tool['function']['arguments']
-        if func_name == "fetch_weather":
-            result = fetch_weather(**args)
-            assistant_prompt = {"role": "assistant", "content": f"{result}."}
-            messages_result = [system_prompt, user_prompt, assistant_prompt]
-            response = LLamaChat(messages_result)
-            for chunk in response:
-                print(chunk['message']['content'], end='', flush=True)
+      if "exit" in prompt or "EXIT" in prompt:
+          sys.exit()
+      user_prompt['content'] = prompt
+      messages = [system_prompt, user_prompt]
+
+      response: ChatResponse = LLamaChatTools(messages)
+
+      if response['message']['tool_calls']:
+          for tool in response['message']['tool_calls']:
+              func_name = tool['function']['name']
+              args = tool['function']['arguments']
+              if func_name == "fetch_weather":
+                  result = fetch_weather(**args)
+                  assistant_prompt = {"role": "assistant", "content": f"{result}."}
+                  messages_result = [system_prompt, user_prompt, assistant_prompt]
+                  response = LLamaChat(messages_result)
+                  Streaming(response)
+
+if __name__ == "__main__":
+    Main()
